@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from flask_bootstrap import Bootstrap
 from datetime import datetime
 import supabase
@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import plotly
 from db import supabase_client
 from datetime import datetime, timedelta
-
+import os
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -219,6 +219,11 @@ def index(data_source="all"):
 
     return render_template("home.html", data=selected_data)
 
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/x-icon')
 
 if __name__ == "__main__":
     app.run(debug=True)
