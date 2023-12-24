@@ -1,0 +1,39 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}History{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Leaderboard</a>
+        <a class="navbar-brand" href="{{ url_for('top_times') }}">Top Times</a>
+        <a class="navbar-brand" href="{{ url_for('recent_games') }}">Recent Games</a>
+        <a class="navbar-brand" href="https://www.nytimes.com/puzzles/leaderboards/invite/341f3f73-133e-440d-b6ca-ca5b08a0d7c4">Join</a>
+    </nav>
+    <div class="container">
+        {% if leaderboard_data %}
+        <h1 class="mb-4 text-center">Leaderboard for {{ date_str }}</h1>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Rank</th>
+                    <th>Username</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in leaderboard_data %}
+                    <tr>
+                        <td>{{ entry['Rank'] }}</td>
+                        <td><a href="{{ url_for('user', username=entry['Username']) }}">{{ entry['Username'] }}</a></td>
+                        <td>{{ entry['Time'] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        
+        <p class="text-center">
+            <a href="https://www.nytimes.com/crosswords/game/mini/{{ date_str[0:4] }}/{{ date_str[5:7] }}/{{ date_str[8:10] }}" target="_blank">View NYT Puzzle</a>
+        </p>
+    </div>
+{% endblock %}

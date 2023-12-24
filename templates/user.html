@@ -1,0 +1,45 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}{{username}}'s stats{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Leaderboard</a>
+        <a class="navbar-brand" href="{{ url_for('top_times') }}">Top Times</a>
+        <a class="navbar-brand" href="{{ url_for('recent_games') }}">Recent Games</a>
+        <a class="navbar-brand" href="https://www.nytimes.com/puzzles/leaderboards/invite/341f3f73-133e-440d-b6ca-ca5b08a0d7c4">Join</a>
+    </nav>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <div class="container">
+        <div class="mb-4 text-center">
+        <h1>Statistics for {{ username }}</h1>
+        <h2>Percentiles (Excluding Saturdays)</h2>
+        <div class="statistics-row">
+            <div class="statistic"><strong>10th Percentile:</strong> {{ user_data['time_percentiles'][10] | format_time }}</div>
+            <div class="statistic"><strong>25th Percentile:</strong> {{ user_data['time_percentiles'][25] | format_time }}</div>
+            <div class="statistic"><strong>50th Percentile (Median):</strong> {{ user_data['time_percentiles'][50] | format_time }}</div>
+            <div class="statistic"><strong>75th Percentile:</strong> {{ user_data['time_percentiles'][75] | format_time }}</div>
+            <div class="statistic"><strong>90th Percentile:</strong> {{ user_data['time_percentiles'][90] | format_time }}</div>
+        </div>
+
+        <h2>Best Times</h2>
+        <div class="podium">
+            {% for entry in user_data['top_times'] %}
+            {% if loop.index0 < 3 %}
+                <div class="podium-item {{ 'gold' if loop.index0 == 0 else 'silver' if loop.index0 == 1 else 'bronze' }}">
+                    <p><strong>{{ entry['time'] | format_time }}</strong></p>
+                    <p><a href="{{ url_for('history', date=entry['date']) }}">{{ entry['date'] }}</a></p>
+                    </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+        <h2>Times Plot</h1>
+        <div id="plotly-plot">
+            {{ plot_html | safe }}
+        </div>
+        </div>
+    </div>
+{% endblock %}

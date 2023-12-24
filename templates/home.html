@@ -1,0 +1,62 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}Leaderboard{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Leaderboard</a>
+        <a class="navbar-brand" href="{{ url_for('top_times') }}">Top Times</a>
+        <a class="navbar-brand" href="{{ url_for('recent_games') }}">Recent Games</a>
+        <a class="navbar-brand" href="https://www.nytimes.com/puzzles/leaderboards/invite/341f3f73-133e-440d-b6ca-ca5b08a0d7c4">Join</a>
+    </nav>
+    <div class="container">
+        <div class="mb-4 text-center">
+            <h1>Leaderboard</h1>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Filter
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="{{ url_for('index', data_source='all') }}">All</a>
+                    <a class="dropdown-item" href="{{ url_for('index', data_source='last_30') }}">Last 30 Days</a>
+                    <a class="dropdown-item" href="{{ url_for('index', data_source='last_90') }}">Last 90 Days</a>
+                </div>
+            </div>
+        </div>
+        {% if data %}
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Rank</th>
+                        <th>Username</th>
+                        <th>ELO</th>
+                        <th>Avg. Time</th>
+                        <th># Wins</th>
+                        <th># Games Played</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in data %}
+                        <tr>
+                            <td>
+                                {{ entry['Rank'] }}
+                                {% if entry['Rank'] == 1 %}
+                                    🥇
+                                {% elif entry['Rank'] == 2 %}
+                                    🥈
+                                {% elif entry['Rank'] == 3 %}
+                                    🥉
+                                {% endif %}
+                            </td>
+                            <td><a href="{{ url_for('user', username=entry['Username']) }}">{{ entry['Username'] }}</a></td>
+                            <td>{{ entry['ELO'] }}</td>
+                            <td>{{ entry['avg_time'] }}</td>
+                            <td>{{ entry['num_wins'] }}</td>
+                            <td>{{ entry['num_played'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

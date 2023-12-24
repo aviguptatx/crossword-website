@@ -1,0 +1,40 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}Top Times{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Leaderboard</a>
+        <a class="navbar-brand" href="{{ url_for('top_times') }}">Top Times</a>
+        <a class="navbar-brand" href="{{ url_for('recent_games') }}">Recent Games</a>
+        <a class="navbar-brand" href="https://www.nytimes.com/puzzles/leaderboards/invite/341f3f73-133e-440d-b6ca-ca5b08a0d7c4">Join</a>
+    </nav>
+    <div class="container mb-4 text-center">
+        <h1>Top 10 Times</h1>
+        <ul class="list-group">
+            {% for entry in data %}
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-12 mb-2 text-center">
+                            {% if loop.index == 1 %}
+                                🥇
+                            {% elif loop.index == 2 %}
+                                🥈
+                            {% elif loop.index == 3 %}
+                                🥉
+                            {% endif %}
+                            <strong>{{ entry['time'] | format_time }}</strong>
+                        </div>
+                    </div>
+                    <div class="row mb-2 text-center">
+                        <div class="col-md-12">
+                            <strong><a href="{{ url_for('user', username=entry['username']) }}">{{ entry['username'] }}</a></strong>
+                            <span class="dot-divider"> &middot; </span>
+                            <a href="{{ url_for('history', date=entry['date']) }}">{{ entry['date'] }}</a>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

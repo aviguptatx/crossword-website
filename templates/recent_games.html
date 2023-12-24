@@ -1,0 +1,26 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}Recent Games{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Leaderboard</a>
+        <a class="navbar-brand" href="{{ url_for('top_times') }}">Top Times</a>
+        <a class="navbar-brand" href="{{ url_for('recent_games') }}">Recent Games</a>
+        <a class="navbar-brand" href="https://www.nytimes.com/puzzles/leaderboards/invite/341f3f73-133e-440d-b6ca-ca5b08a0d7c4">Join</a>
+    </nav>
+    <div class="container mb-4 text-center">
+        <h1>Recent Games</h1>
+        <ul class="list-group">
+            {% for date_entry in recent_dates %}
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-12 mb-2 text-center">
+                            <a href="{{ url_for('history', date=date_entry) }}">{{ date_entry }}</a>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
