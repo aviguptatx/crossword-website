@@ -13,7 +13,6 @@ chardet==4.0.0
 charset-normalizer==2.0.6
 click==8.1.7
 colorama==0.4.4
-command-not-found==0.3
 contourpy==1.2.0
 cryptography==3.4.8
 cycler==0.12.1
