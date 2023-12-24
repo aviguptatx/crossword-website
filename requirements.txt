@@ -75,7 +75,6 @@ soupsieve==2.5
 storage3==0.7.0
 StrEnum==0.4.15
 supabase==2.3.0
-systemd-python==234
 tenacity==8.2.3
 tomli==2.0.1
 trueskill==0.4.5
