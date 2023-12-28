@@ -66,12 +66,14 @@ def fetch_leaderboard(date_str):
 
     leaderboard = []
 
-    prev_score = None
+    prev_time = None
     rank = 0
 
     for entry in data[1]:
-        if entry["time"] != prev_score:
+        if entry["time"] != prev_time:
             rank += 1
+
+        prev_time = entry["time"]
 
         mm, ss = divmod(entry["time"], 60)
         formatted_time = f"{mm:02d}:{ss:02d}"
@@ -220,10 +222,12 @@ def index(data_source="all"):
     return render_template("home.html", data=selected_data)
 
 
-@app.route('/favicon.ico')
+@app.route("/favicon.ico")
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/x-icon')
+    return send_from_directory(
+        os.path.join(app.root_path, "static"), "favicon.ico", mimetype="image/x-icon"
+    )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
