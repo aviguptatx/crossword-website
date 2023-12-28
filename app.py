@@ -1,14 +1,15 @@
-from flask import Flask, render_template, request, send_from_directory
-from flask_bootstrap import Bootstrap
-from datetime import datetime
-import supabase
+import os
+from datetime import datetime, timedelta
+
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objects as go
 import plotly
+import plotly.graph_objects as go
+import supabase
+from flask import Flask, render_template, request, send_from_directory
+from flask_bootstrap import Bootstrap
+
 from db import supabase_client
-from datetime import datetime, timedelta
-import os
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
