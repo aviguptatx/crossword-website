@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly
 import plotly.graph_objects as go
+import requests
 import supabase
 from flask import Flask, render_template, request, send_from_directory
 from flask_bootstrap import Bootstrap
@@ -180,6 +181,41 @@ def user(username):
     return render_template(
         "user.html", username=username, user_data=user_data, plot_html=plot_html
     )
+
+
+@app.route("/today")
+def today():
+    response = requests.get(
+        "https://www.nytimes.com/svc/crosswords/v6/leaderboard/mini.json",
+        headers={
+            "accept": "application/json",
+            "nyt-s": "1wKc338dMaXaEkV7ViyXYFIRk62A8t4ZPiL5fY5rnr1hHKGa8MCmcj9gMItd1kb.sGjOoea6bgYnRxckKfk3fLpzAembwXpdiEzZc8xynz9R4swkK98XcatPxDTQO38FS1^^^^CBUSKwjcp-efBhCHnvmnBhoSMS1m-DM3NmZTD6rjR_kLyndcIOy4gF84iYftmQYaQH_rL-OPO34VpvDHmGBPalTjX7WbgzClvIgNC3TIGlgGMWkrfv-p-Y4e9n5YhqRXwOdEb53uKMw59wiDzXBEWAE",
+        },
+    )
+
+    results = []
+    prev_time = None
+    rank = 0
+
+    for entry in response.json()["data"]:
+        if "score" not in entry or entry["score"]["secondsSpentSolving"] == 0:
+            continue
+
+        time = entry["score"]["secondsSpentSolving"]
+
+        if time != prev_time:
+            rank += 1
+        prev_time = time
+
+        result = {
+            "Rank": rank,
+            "Username": entry["name"],
+            "Time": format_time_filter(time),
+        }
+
+        results.append(result)
+
+    return render_template("today.html", leaderboard_data=results)
 
 
 @app.route("/")

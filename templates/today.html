@@ -1,6 +1,6 @@
 {% extends 'bootstrap/base.html' %}
 
-{% block title %}History{% endblock %}
+{% block title %}Today's Leaderboard{% endblock %}
 
 {% block content %}
     <nav class="navbar navbar-light bg-light">
@@ -12,7 +12,7 @@
     </nav>
     <div class="container">
         {% if leaderboard_data %}
-        <h1 class="mb-4 text-center">Leaderboard for {{ date_str }}</h1>
+        <h1 class="mb-4 text-center">Today's Leaderboard</h1>
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
@@ -32,9 +32,5 @@
             </tbody>
         </table>
         {% endif %}
-        
-        <p class="text-center">
-            <a href="https://www.nytimes.com/crosswords/game/mini/{{ date_str[0:4] }}/{{ date_str[5:7] }}/{{ date_str[8:10] }}" target="_blank">View NYT Puzzle</a>
-        </p>
     </div>
 {% endblock %}
