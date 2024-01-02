@@ -6,7 +6,6 @@ import numpy as np
 import plotly
 import plotly.graph_objects as go
 import requests
-import supabase
 from flask import Flask, render_template, request, send_from_directory
 from flask_bootstrap import Bootstrap
 

@@ -1,4 +1,5 @@
 import os
+
 import supabase
 
 supabase_client = supabase.create_client(
