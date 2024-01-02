@@ -9,6 +9,10 @@ on:
 jobs:
   update_database:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      NYT_S_TOKEN: ${{ secrets.NYT_S_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
