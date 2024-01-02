@@ -178,25 +178,20 @@ def today():
         },
     )
 
+    data = response.json()["data"]
+    solved_data = [
+        entry for entry in data if entry.get("score", {}).get("secondsSpentSolving", 0)
+    ]
+    solved_times = [entry["score"]["secondsSpentSolving"] for entry in solved_data]
+
     results = []
-    prev_time = None
-    rank = 0
 
-    for entry in response.json()["data"]:
-        if "score" not in entry or entry["score"]["secondsSpentSolving"] == 0:
-            continue
-
-        curr_time = entry["score"]["secondsSpentSolving"]
-
-        if curr_time != prev_time:
-            rank += 1
-
-        prev_time = curr_time
-
+    for entry in solved_data:
+        time = entry["score"]["secondsSpentSolving"]
         result = {
-            "Rank": rank,
+            "Rank": solved_times.index(time) + 1,
             "Username": entry["name"],
-            "Time": format_time(curr_time),
+            "Time": format_time(time),
         }
 
         results.append(result)
