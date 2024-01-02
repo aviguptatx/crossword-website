@@ -10,14 +10,15 @@ from flask import Flask, render_template, request, send_from_directory
 from flask_bootstrap import Bootstrap
 
 from db import supabase_client
+from utils import (
+    fetch_leaderboard,
+    fetch_today_leaderboard,
+    format_time,
+    get_most_recent_crossword_date,
+)
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
-
-
-def format_time(seconds):
-    minutes, seconds = divmod(seconds, 60)
-    return f"{int(minutes):02d}:{int(seconds):02d}"
 
 
 app.jinja_env.filters["format_time"] = format_time
@@ -58,31 +59,6 @@ def fetch_user_data(username):
     }
 
 
-def fetch_leaderboard(date_str):
-    data = (
-        supabase_client.table("results")
-        .select("*")
-        .eq("date", date_str)
-        .order("time")
-        .execute()
-        .data
-    )
-
-    times = [entry["time"] for entry in data]
-    leaderboard = []
-
-    for entry in data:
-        leaderboard.append(
-            {
-                "Rank": times.index(entry["time"]) + 1,
-                "Username": entry["username"],
-                "Time": format_time(entry["time"]),
-            }
-        )
-
-    return leaderboard
-
-
 @app.route("/history/<date>")
 def history(date):
     leaderboard_data = fetch_leaderboard(date)
@@ -106,15 +82,7 @@ def top_times():
 
 @app.route("/recent_games")
 def recent_games():
-    data = (
-        supabase_client.table("results")
-        .select("*")
-        .order("date", desc=True)
-        .limit(1)
-        .execute()
-        .data
-    )
-    most_recent_date = datetime.strptime(data[0]["date"], "%Y-%m-%d")
+    most_recent_date = get_most_recent_crossword_date()
 
     recent_dates = [
         (most_recent_date - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(10)
@@ -169,15 +137,7 @@ def user(username):
 
 @app.route("/today")
 def today():
-    response = requests.get(
-        "https://www.nytimes.com/svc/crosswords/v6/leaderboard/mini.json",
-        headers={
-            "accept": "application/json",
-            "nyt-s": os.environ.get("NYT_S_TOKEN"),
-        },
-    )
-
-    data = response.json()["data"]
+    data = fetch_today_leaderboard()
     solved_data = [
         entry for entry in data if entry.get("score", {}).get("secondsSpentSolving", 0)
     ]

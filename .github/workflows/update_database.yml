@@ -1,0 +1,22 @@
+name: update database
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 23 * * 1-5'   # 11:30 PM UTC Mon-Fri -- 5:30 PM CT Mon-Fri (or 6:30 PM if clocks move forward)
+    - cron: '30 19 * * 6,0'   #  7:30 PM UTC Sat/Sun -- 1:30 PM CT Sat/Sun (or 1:30 PM if clocks move forward)
+
+jobs:
+  update_database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Update database
+        run: python update_db.py

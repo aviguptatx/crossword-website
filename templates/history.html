@@ -26,7 +26,7 @@
                     <tr>
                         <td>{{ entry['Rank'] }}</td>
                         <td><a href="{{ url_for('user', username=entry['Username']) }}">{{ entry['Username'] }}</a></td>
-                        <td>{{ entry['Time'] }}</td>
+                        <td>{{ entry['Time'] | format_time }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
