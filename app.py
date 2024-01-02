@@ -30,40 +30,42 @@ def is_saturday(date_str):
 
 
 def fetch_user_data(username):
-    data, *_ = (
-        supabase_client.from_("results")
+    data = (
+        supabase_client.table("results")
         .select("*")
         .eq("username", username)
         .order("time")
         .execute()
+        .data
     )
 
     times_excluding_saturday = [
-        entry["time"] for entry in data[1] if not is_saturday(entry["date"])
+        entry["time"] for entry in data if not is_saturday(entry["date"])
     ]
-    fastest_time = min((entry["time"] for entry in data[1]), default=None)
+    fastest_time = min((entry["time"] for entry in data), default=None)
 
     percentiles = [10, 25, 50, 75, 90]
     time_percentiles = np.percentile(times_excluding_saturday, percentiles)
     time_percentiles = time_percentiles[::-1]
 
-    top_times = sorted(data[1], key=lambda entry: entry["time"])[:5]
+    top_times = sorted(data, key=lambda entry: entry["time"])[:5]
 
     return {
         "fastest_time": fastest_time,
         "time_percentiles": dict(zip(percentiles, time_percentiles)),
-        "all_entries": data[1],
+        "all_entries": data,
         "top_times": top_times,
     }
 
 
 def fetch_leaderboard(date_str):
-    data, _ = (
-        supabase_client.from_("results")
+    data = (
+        supabase_client.table("results")
         .select("*")
         .eq("date", date_str)
         .order("time")
         .execute()
+        .data
     )
 
     leaderboard = []
@@ -71,13 +73,15 @@ def fetch_leaderboard(date_str):
     prev_time = None
     rank = 0
 
-    for entry in data[1]:
-        if entry["time"] != prev_time:
+    for entry in data:
+        curr_time = entry["time"]
+
+        if curr_time != prev_time:
             rank += 1
 
-        prev_time = entry["time"]
+        prev_time = curr_time
 
-        mm, ss = divmod(entry["time"], 60)
+        mm, ss = divmod(curr_time, 60)
         formatted_time = f"{mm:02d}:{ss:02d}"
 
         leaderboard.append(
@@ -101,26 +105,28 @@ def history(date):
 
 @app.route("/top_times")
 def top_times():
-    data, _ = (
-        supabase_client.from_("results")
+    data = (
+        supabase_client.table("results")
         .select("*")
         .order("time", desc=False)
         .limit(10)
         .execute()
+        .data
     )
-    return render_template("top_times.html", data=data[1])
+    return render_template("top_times.html", data=data)
 
 
 @app.route("/recent_games")
 def recent_games():
-    data, _ = (
-        supabase_client.from_("results")
+    data = (
+        supabase_client.table("results")
         .select("*")
         .order("date", desc=True)
         .limit(1)
         .execute()
+        .data
     )
-    most_recent_date = datetime.strptime(data[1][0]["date"], "%Y-%m-%d")
+    most_recent_date = datetime.strptime(data[0]["date"], "%Y-%m-%d")
 
     recent_dates = [
         (most_recent_date - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(10)
@@ -222,13 +228,17 @@ def today():
 @app.route("/index/<data_source>")
 def index(data_source="all"):
     def get_leaderboard_from_db(db_name):
-        data, _ = (
-            supabase_client.from_(db_name).select("*").order("elo", desc=True).execute()
+        data = (
+            supabase_client.table(db_name)
+            .select("*")
+            .order("elo", desc=True)
+            .execute()
+            .data
         )
 
         output = []
 
-        for rank, entry in enumerate(data[1], 1):
+        for rank, entry in enumerate(data, 1):
             mm, ss = divmod(int(entry["average_time"]), 60)
             formatted_time = f"{mm:02d}:{ss:02d}"
 
