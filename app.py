@@ -16,12 +16,12 @@ app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
 
-def format_time_filter(seconds):
+def format_time(seconds):
     minutes, seconds = divmod(seconds, 60)
     return f"{int(minutes):02d}:{int(seconds):02d}"
 
 
-app.jinja_env.filters["format_time"] = format_time_filter
+app.jinja_env.filters["format_time"] = format_time
 
 
 def is_saturday(date_str):
@@ -81,14 +81,11 @@ def fetch_leaderboard(date_str):
 
         prev_time = curr_time
 
-        mm, ss = divmod(curr_time, 60)
-        formatted_time = f"{mm:02d}:{ss:02d}"
-
         leaderboard.append(
             {
                 "Rank": rank,
                 "Username": entry["username"],
-                "Time": formatted_time,
+                "Time": format_time(curr_time),
             }
         )
 
@@ -217,7 +214,7 @@ def today():
         result = {
             "Rank": rank,
             "Username": entry["name"],
-            "Time": format_time_filter(curr_time),
+            "Time": format_time(curr_time),
         }
 
         results.append(result)
@@ -240,15 +237,12 @@ def index(data_source="all"):
         output = []
 
         for rank, entry in enumerate(data, 1):
-            mm, ss = divmod(int(entry["average_time"]), 60)
-            formatted_time = f"{mm:02d}:{ss:02d}"
-
             output.append(
                 {
                     "Rank": rank,
                     "Username": entry["username"],
                     "ELO": int(entry["elo"]),
-                    "avg_time": formatted_time,
+                    "avg_time": format_time(entry["average_time"]),
                     "num_wins": entry["num_wins"],
                     "num_played": entry["num_played"],
                 }
@@ -256,18 +250,7 @@ def index(data_source="all"):
 
         return output
 
-    all_data = get_leaderboard_from_db("all")
-    last_30_data = get_leaderboard_from_db("last_30")
-    last_90_data = get_leaderboard_from_db("last_90")
-
-    if data_source == "all":
-        selected_data = all_data
-    elif data_source == "last_30":
-        selected_data = last_30_data
-    else:
-        selected_data = last_90_data
-
-    return render_template("home.html", data=selected_data)
+    return render_template("home.html", data=get_leaderboard_from_db(data_source))
 
 
 @app.route("/favicon.ico")
