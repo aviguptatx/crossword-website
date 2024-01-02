@@ -189,7 +189,7 @@ def today():
         "https://www.nytimes.com/svc/crosswords/v6/leaderboard/mini.json",
         headers={
             "accept": "application/json",
-            "nyt-s": "1wKc338dMaXaEkV7ViyXYFIRk62A8t4ZPiL5fY5rnr1hHKGa8MCmcj9gMItd1kb.sGjOoea6bgYnRxckKfk3fLpzAembwXpdiEzZc8xynz9R4swkK98XcatPxDTQO38FS1^^^^CBUSKwjcp-efBhCHnvmnBhoSMS1m-DM3NmZTD6rjR_kLyndcIOy4gF84iYftmQYaQH_rL-OPO34VpvDHmGBPalTjX7WbgzClvIgNC3TIGlgGMWkrfv-p-Y4e9n5YhqRXwOdEb53uKMw59wiDzXBEWAE",
+            "nyt-s": os.environ.get("NYT_S_TOKEN"),
         },
     )
 
