@@ -207,16 +207,17 @@ def today():
         if "score" not in entry or entry["score"]["secondsSpentSolving"] == 0:
             continue
 
-        time = entry["score"]["secondsSpentSolving"]
+        curr_time = entry["score"]["secondsSpentSolving"]
 
-        if time != prev_time:
+        if curr_time != prev_time:
             rank += 1
-        prev_time = time
+
+        prev_time = curr_time
 
         result = {
             "Rank": rank,
             "Username": entry["name"],
-            "Time": format_time_filter(time),
+            "Time": format_time_filter(curr_time),
         }
 
         results.append(result)
