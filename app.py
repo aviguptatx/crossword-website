@@ -30,6 +30,8 @@ def is_saturday(date_str):
 
 
 def fetch_user_data(username):
+    PERCENTILES = [10, 25, 50, 75, 90]
+
     data = (
         supabase_client.table("results")
         .select("*")
@@ -42,17 +44,16 @@ def fetch_user_data(username):
     times_excluding_saturday = [
         entry["time"] for entry in data if not is_saturday(entry["date"])
     ]
-    fastest_time = min((entry["time"] for entry in data), default=None)
+    fastest_time = min(entry["time"] for entry in data)
 
-    percentiles = [10, 25, 50, 75, 90]
-    time_percentiles = np.percentile(times_excluding_saturday, percentiles)
+    time_percentiles = np.percentile(times_excluding_saturday, PERCENTILES)
     time_percentiles = time_percentiles[::-1]
 
     top_times = sorted(data, key=lambda entry: entry["time"])[:5]
 
     return {
         "fastest_time": fastest_time,
-        "time_percentiles": dict(zip(percentiles, time_percentiles)),
+        "time_percentiles": dict(zip(PERCENTILES, time_percentiles)),
         "all_entries": data,
         "top_times": top_times,
     }
@@ -68,24 +69,15 @@ def fetch_leaderboard(date_str):
         .data
     )
 
+    times = [entry["time"] for entry in data]
     leaderboard = []
 
-    prev_time = None
-    rank = 0
-
     for entry in data:
-        curr_time = entry["time"]
-
-        if curr_time != prev_time:
-            rank += 1
-
-        prev_time = curr_time
-
         leaderboard.append(
             {
-                "Rank": rank,
+                "Rank": times.index(entry["time"]) + 1,
                 "Username": entry["username"],
-                "Time": format_time(curr_time),
+                "Time": format_time(entry["time"]),
             }
         )
 
@@ -137,15 +129,10 @@ def user(username):
     user_data = fetch_user_data(username)
     all_entries = user_data["all_entries"]
 
-    if user_data is None:
-        return redirect(url_for("leaderboard"))
-
-    dates = [entry["date"] for entry in all_entries]
-    times = [entry["time"] for entry in all_entries]
-
-    sorted_indices = sorted(range(len(dates)), key=lambda k: dates[k])
-    sorted_dates = [dates[i] for i in sorted_indices]
-    sorted_times = [times[i] for i in sorted_indices]
+    sorted_entries = sorted(all_entries, key=lambda entry: entry["date"])
+    sorted_dates, sorted_times = zip(
+        *[(entry["date"], entry["time"]) for entry in sorted_entries]
+    )
 
     fig = go.Figure()
 
@@ -168,13 +155,8 @@ def user(username):
         yaxis_title="Time (seconds)",
         autosize=True,
         xaxis_tickformatstops=[
-            dict(dtickrange=[None, 1000], value="%H:%M:%S.%L ms"),
-            dict(dtickrange=[1000, 60000], value="%H:%M:%S s"),
-            dict(dtickrange=[60000, 3600000], value="%H:%M m"),
-            dict(dtickrange=[3600000, 86400000], value="%H:%M h"),
-            dict(dtickrange=[86400000, 604800000], value="%e. %b d"),
-            dict(dtickrange=[604800000, "M1"], value="%e. %b w"),
-            dict(dtickrange=["M1", "M12"], value="%b '%y M"),
+            dict(dtickrange=[None, "M1"], value="%b %e"),
+            dict(dtickrange=["M1", "M12"], value="%b '%Y"),
             dict(dtickrange=["M12", None], value="%Y Y"),
         ],
     )
