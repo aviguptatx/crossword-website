@@ -138,14 +138,11 @@ def user(username):
 @app.route("/today")
 def today():
     data = fetch_today_leaderboard()
-    solved_data = [
-        entry for entry in data if entry.get("score", {}).get("secondsSpentSolving", 0)
-    ]
-    solved_times = [entry["score"]["secondsSpentSolving"] for entry in solved_data]
+    solved_times = [entry["score"]["secondsSpentSolving"] for entry in data]
 
     results = []
 
-    for entry in solved_data:
+    for entry in data:
         time = entry["score"]["secondsSpentSolving"]
         result = {
             "Rank": solved_times.index(time) + 1,

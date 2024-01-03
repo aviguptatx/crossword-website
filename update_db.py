@@ -21,9 +21,6 @@ def fetch_today_results():
 
     data = fetch_today_leaderboard()
     for entry in data:
-        if "score" not in entry or entry["score"]["secondsSpentSolving"] == 0:
-            continue
-
         result = {
             "date": today_iso,
             "username": entry["name"],

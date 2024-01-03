@@ -52,7 +52,11 @@ def fetch_today_leaderboard():
         },
     )
 
-    return response.json()["data"]
+    return [
+        entry
+        for entry in response.json()["data"]
+        if entry.get("score", {}).get("secondsSpentSolving", 0)
+    ]
 
 
 def format_time(seconds):
