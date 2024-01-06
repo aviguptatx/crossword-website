@@ -8,6 +8,7 @@ from trueskill import Rating, rate
 
 from db import supabase_client
 from utils import (
+    daterange,
     fetch_leaderboard,
     fetch_today_leaderboard,
     get_most_recent_crossword_date,
@@ -49,17 +50,12 @@ def compute_stats(
     total_time = total_time or defaultdict(int)
     all_usernames = all_usernames or set()
 
-    step = timedelta(days=1)
-
-    current_iteration = start_date
-
-    while current_iteration <= end_date:
+    for date in daterange(start_date, end_date):
         trueskills = []
         ranks = []
         usernames = []
 
-        iso_date = current_iteration.date().isoformat()
-        leaderboard = fetch_leaderboard(iso_date)
+        leaderboard = fetch_leaderboard(date)
 
         if leaderboard:
             usernames = [entry["Username"] for entry in leaderboard]
@@ -84,8 +80,6 @@ def compute_stats(
             for i, result in enumerate(results):
                 mus[usernames[i]] = result[0].mu
                 sigmas[usernames[i]] = result[0].sigma
-
-        current_iteration += step
 
     entries = []
 
@@ -141,10 +135,10 @@ def update_table(table_name, data):
 
 
 if __name__ == "__main__":
-    current_date = get_most_recent_crossword_date()
-
     for result in fetch_today_results():
         supabase_client.table("results").insert(result).execute()
+
+    current_date = get_most_recent_crossword_date()
 
     last_30_entries = compute_stats(
         start_date=current_date - timedelta(days=29), end_date=current_date
@@ -152,6 +146,7 @@ if __name__ == "__main__":
     last_90_entries = compute_stats(
         start_date=current_date - timedelta(days=89), end_date=current_date
     )
+
     all_old, all_new = fetch_new_stats()
 
     update_table("last_30", last_30_entries)
