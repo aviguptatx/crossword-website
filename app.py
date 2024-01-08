@@ -41,6 +41,9 @@ def fetch_user_data(username):
         .data
     )
 
+    if not data:
+        return None
+
     times_excluding_saturday = [
         entry["time"] for entry in data if not is_saturday(entry["date"])
     ]
@@ -59,7 +62,12 @@ def fetch_user_data(username):
     }
 
 
-def generate_plot_html(all_entries, sorted_dates, sorted_times):
+def generate_plot_html(all_entries):
+    sorted_entries = sorted(all_entries, key=lambda entry: entry["date"])
+    sorted_dates, sorted_times = zip(
+        *[(entry["date"], entry["time"]) for entry in sorted_entries]
+    )
+
     if len(all_entries) > 1:
         fig = go.Figure()
 
@@ -128,14 +136,10 @@ def recent_games():
 @app.route("/user/<username>")
 def user(username):
     user_data = fetch_user_data(username)
-    all_entries = user_data["all_entries"]
+    if not user_data:
+        return "User has no games in database yet. Check back later tonight!"
 
-    sorted_entries = sorted(all_entries, key=lambda entry: entry["date"])
-    sorted_dates, sorted_times = zip(
-        *[(entry["date"], entry["time"]) for entry in sorted_entries]
-    )
-
-    plot_html = generate_plot_html(all_entries, sorted_dates, sorted_times)
+    plot_html = generate_plot_html(user_data["all_entries"])
 
     return render_template(
         "user.html", username=username, user_data=user_data, plot_html=plot_html
