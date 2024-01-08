@@ -1,9 +1,20 @@
 import os
 from datetime import datetime, timedelta
 
+import pytz
 import requests
 
 from db import supabase_client
+
+
+def to_iso(datetime_obj):
+    return datetime_obj.strftime("%Y-%m-%d")
+
+
+def today_eastern():
+    utc_now = datetime.utcnow()
+    et_now = utc_now.replace(tzinfo=pytz.utc).astimezone(pytz.timezone("US/Mountain"))
+    return et_now
 
 
 def daterange(start_date, end_date):
@@ -49,10 +60,10 @@ def fetch_leaderboard(date_str):
 
 
 def fetch_today_leaderboard():
-    today = datetime.now().strftime("%Y-%m-%d")
+    today_iso = to_iso(today_eastern())
 
     response = requests.get(
-        f"https://www.nytimes.com/svc/crosswords/v6/leaderboard/mini/{today}.json",
+        f"https://www.nytimes.com/svc/crosswords/v6/leaderboard/mini/{today_iso}.json",
         headers={
             "accept": "application/json",
             "nyt-s": os.environ.get("NYT_S_TOKEN"),

@@ -12,13 +12,15 @@ from utils import (
     fetch_leaderboard,
     fetch_today_leaderboard,
     get_most_recent_crossword_date,
+    to_iso,
+    today_eastern,
 )
 
 
 def fetch_today_results():
     results = []
 
-    today_iso = datetime.now().isoformat()
+    today_iso = to_iso(today_eastern())
 
     data = fetch_today_leaderboard()
     for entry in data:
@@ -116,9 +118,11 @@ def fetch_new_stats():
         num_played[username] = entry["num_played"]
         total_time[username] = entry["num_played"] * entry["average_time"]
 
+    today = today_eastern()
+
     return old_data, compute_stats(
-        datetime.now(),
-        datetime.now(),
+        today,
+        today,
         mus,
         sigmas,
         num_wins,
