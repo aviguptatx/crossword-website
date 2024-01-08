@@ -49,8 +49,10 @@ def fetch_leaderboard(date_str):
 
 
 def fetch_today_leaderboard():
+    today = datetime.now().strftime("%Y-%m-%d")
+
     response = requests.get(
-        "https://www.nytimes.com/svc/crosswords/v6/leaderboard/mini.json",
+        f"https://www.nytimes.com/svc/crosswords/v6/leaderboard/mini/{today}.json",
         headers={
             "accept": "application/json",
             "nyt-s": os.environ.get("NYT_S_TOKEN"),
