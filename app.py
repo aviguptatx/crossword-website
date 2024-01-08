@@ -59,6 +59,40 @@ def fetch_user_data(username):
     }
 
 
+def generate_plot_html(all_entries, sorted_dates, sorted_times):
+    if len(all_entries) > 1:
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=sorted_dates, y=sorted_times, mode="markers", name="User Times"
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=sorted_dates,
+                y=np.poly1d(np.polyfit(range(len(sorted_dates)), sorted_times, 1))(
+                    range(len(sorted_dates))
+                ),
+                mode="lines",
+                name="Trend Line",
+            )
+        )
+
+        fig.update_layout(
+            xaxis_title="Date",
+            yaxis_title="Time (seconds)",
+            autosize=True,
+            xaxis_tickformatstops=[
+                dict(dtickrange=[None, "M1"], value="%b %e"),
+                dict(dtickrange=["M1", "M12"], value="%b '%Y"),
+                dict(dtickrange=["M12", None], value="%Y Y"),
+            ],
+        )
+        return plotly.io.to_html(fig, include_plotlyjs=False, full_html=False)
+    return "Need more times before we can plot!"
+
+
 @app.route("/history/<date>")
 def history(date):
     leaderboard_data = fetch_leaderboard(date)
@@ -101,34 +135,7 @@ def user(username):
         *[(entry["date"], entry["time"]) for entry in sorted_entries]
     )
 
-    fig = go.Figure()
-
-    fig.add_trace(
-        go.Scatter(x=sorted_dates, y=sorted_times, mode="markers", name="User Times")
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=sorted_dates,
-            y=np.poly1d(np.polyfit(range(len(sorted_dates)), sorted_times, 1))(
-                range(len(sorted_dates))
-            ),
-            mode="lines",
-            name="Trend Line",
-        )
-    )
-
-    fig.update_layout(
-        xaxis_title="Date",
-        yaxis_title="Time (seconds)",
-        autosize=True,
-        xaxis_tickformatstops=[
-            dict(dtickrange=[None, "M1"], value="%b %e"),
-            dict(dtickrange=["M1", "M12"], value="%b '%Y"),
-            dict(dtickrange=["M12", None], value="%Y Y"),
-        ],
-    )
-
-    plot_html = plotly.io.to_html(fig, include_plotlyjs=False, full_html=False)
+    plot_html = generate_plot_html(all_entries, sorted_dates, sorted_times)
 
     return render_template(
         "user.html", username=username, user_data=user_data, plot_html=plot_html
