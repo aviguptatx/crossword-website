@@ -77,6 +77,22 @@ def fetch_today_leaderboard():
     ]
 
 
+def fetch_live_leaderboard():
+    response = requests.get(
+        f"https://www.nytimes.com/svc/crosswords/v6/leaderboard/mini.json",
+        headers={
+            "accept": "application/json",
+            "nyt-s": os.environ.get("NYT_S_TOKEN"),
+        },
+    )
+
+    return [
+        entry
+        for entry in response.json()["data"]
+        if entry.get("score", {}).get("secondsSpentSolving", 0)
+    ]
+
+
 def format_time(seconds):
     minutes, seconds = divmod(seconds, 60)
     return f"{int(minutes):02d}:{int(seconds):02d}"

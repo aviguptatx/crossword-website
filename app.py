@@ -12,6 +12,7 @@ from flask_bootstrap import Bootstrap
 from db import supabase_client
 from utils import (
     fetch_leaderboard,
+    fetch_live_leaderboard,
     fetch_today_leaderboard,
     format_time,
     get_most_recent_crossword_date,
@@ -148,7 +149,7 @@ def user(username):
 
 @app.route("/today")
 def today():
-    data = fetch_today_leaderboard()
+    data = fetch_live_leaderboard()
     solved_times = [entry["score"]["secondsSpentSolving"] for entry in data]
 
     results = []
