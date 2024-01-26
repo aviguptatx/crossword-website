@@ -1,0 +1,71 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}Head to Head Statistics{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" style="font-size: 13px;" href="{{ url_for('index') }}">Home</a>
+        <a class="navbar-brand" style="font-size: 13px;" href="{{ url_for('top_times') }}">Podium</a>
+        <a class="navbar-brand" style="font-size: 13px;" href="{{ url_for('recent_games') }}">Recent</a>
+        <a class="navbar-brand" style="font-size: 13px;" href="{{ url_for('today') }}">Today</a>
+        <a class="navbar-brand" style="font-size: 13px;" href="https://www.nytimes.com/puzzles/leaderboards/invite/341f3f73-133e-440d-b6ca-ca5b08a0d7c4">Join</a>
+        <a class="navbar-brand" style="font-size: 13px;" href="{{ url_for('h2h') }}">H2H</a>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Head to Head Comparison</h1>
+        <h4 class="mb-4 text-center">Stastistics on crosswords that BOTH players participated in.</h4>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <label for="user1Select">Select Player 1:</label>
+                <select class="form-control" id="user1Select">
+                    {% for user in users %}
+                        <option {% if user == user1 %} selected {% endif %}>{{ user }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="user2Select">Select Player 2:</label>
+                <select class="form-control" id="user2Select">
+                    {% for user in users %}
+                        <option {% if user == user2 %} selected {% endif %}>{{ user }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                <button class="btn btn-primary" onclick="getHeadToHeadStats()">Get Statistics</button>
+            </div>
+        </div>
+    </div>
+
+{% if stats %}
+<div id="statsContainer" class="mt-5">
+    <h2 class="text-center">Head to Head Stats</h2>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="text-center">
+                {% if user1 == user2 %}
+                <p>Try selecting different players, silly.</p>
+                {% else %}
+                <p><span id="totalMatches">{{ user1 }} and {{ user2 }} have played {{ stats.total_matches }} crossword(s) together.</span></p>
+                <p><span id="wins"></span> {{ user1 }} has {{ stats.wins_user1 }} win(s) while {{ user2 }} has {{ stats.wins_user2 }} win(s). They have {{ stats.ties }} tie(s).</p>
+                <p><span id="avgTimeDiff">{{ stats.time_diff_description }}</span></p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+    <script>
+        function getHeadToHeadStats() {
+            var user1 = document.getElementById("user1Select").value;
+            var user2 = document.getElementById("user2Select").value;
+            var url = "/h2h/" + encodeURIComponent(user1) + "/" + encodeURIComponent(user2);
+            window.location.href = url;
+        }
+    </script>
+{% endblock %}

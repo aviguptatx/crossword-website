@@ -16,6 +16,7 @@ from utils import (
     fetch_today_leaderboard,
     format_time,
     get_most_recent_crossword_date,
+    get_usernames_sorted_by_elo,
 )
 
 app = Flask(__name__)
@@ -165,6 +166,56 @@ def today():
         results.append(result)
 
     return render_template("today.html", leaderboard_data=results)
+
+
+@app.route("/h2h")
+@app.route("/h2h/<user1>/<user2>")
+def h2h(user1=None, user2=None):
+    stats = None
+    users = get_usernames_sorted_by_elo()
+    if user1 and user2:
+        results = (
+            supabase_client.rpc(
+                "get_head_to_head_stats", {"user1": user1, "user2": user2}
+            )
+            .execute()
+            .data
+        )
+
+        wins_user1 = 0
+        wins_user2 = 0
+        ties = 0
+        total_matches = len(results)
+        total_time_diff = 0
+        avg_time_diff = 0
+
+        for row in results:
+            if row["time_player1"] < row["time_player2"]:
+                wins_user1 += 1
+            elif row["time_player1"] > row["time_player2"]:
+                wins_user2 += 1
+            else:
+                ties += 1
+            total_time_diff += row["time_player1"] - row["time_player2"]
+
+        avg_time_diff = total_time_diff / total_matches if total_matches > 0 else 0
+        faster_user, slower_user = (
+            (user1, user2) if avg_time_diff < 0 else (user2, user1)
+        )
+
+        time_diff_description = f"On average, {faster_user} is {abs(avg_time_diff):.1f} seconds faster than {slower_user}."
+
+        stats = {
+            "wins_user1": wins_user1,
+            "wins_user2": wins_user2,
+            "ties": ties,
+            "total_matches": total_matches,
+            "time_diff_description": time_diff_description,
+        }
+
+    return render_template(
+        "h2h.html", stats=stats, users=users, user1=user1, user2=user2
+    )
 
 
 @app.route("/")
