@@ -49,9 +49,9 @@
                 {% if user1 == user2 %}
                 <p>Try selecting different players, silly.</p>
                 {% else %}
-                <p><span id="totalMatches">{{ user1 }} and {{ user2 }} have played {{ stats.total_matches }} crossword(s) together.</span></p>
-                <p><span id="wins"></span> {{ user1 }} has {{ stats.wins_user1 }} win(s) while {{ user2 }} has {{ stats.wins_user2 }} win(s). They have {{ stats.ties }} tie(s).</p>
-                <p><span id="avgTimeDiff">{{ stats.time_diff_description }}</span></p>
+                <p><span id="totalMatches"><strong>{{ user1 }}</strong> and <strong>{{ user2 }}</strong> have played <strong>{{ stats.total_matches }}</strong> crossword(s) together.</span></p>
+                <p><span id="wins"></span> <strong>{{ user1 }}</strong> has <strong>{{ stats.wins_user1 }}</strong> win(s) while <strong>{{ user2 }}</strong> has <strong>{{ stats.wins_user2 }}</strong> win(s). They have <strong>{{ stats.ties }}</strong> tie(s).</p>
+                <p><span id="avgTimeDiff"><strong>{{ stats.time_diff_description }}</strong></span></p>
                 {% endif %}
 
             </div>
