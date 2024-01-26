@@ -22,6 +22,14 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 
+def get_usernames_sorted_by_elo():
+    data = (
+        supabase_client.table("all").select("*").order("elo", desc=True).execute().data
+    )
+
+    return [row["username"] for row in data]
+
+
 def get_most_recent_crossword_date():
     data = (
         supabase_client.table("results")
