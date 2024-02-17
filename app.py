@@ -25,7 +25,7 @@ app = Flask(__name__)
 @app.route('/<path:path>')
 def redirect_to_new_site(path):
     new_website = "https://crosselo.avigupta.workers.dev/" + path
-    return redirect(new_website)
+    return redirect(new_website, code=301)
 
 if __name__ == "__main__":
     app.run(debug=True)
